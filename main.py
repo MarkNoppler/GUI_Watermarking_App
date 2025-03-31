@@ -15,7 +15,7 @@ Jacob Fairhurst
 """
 
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, colorchooser
 from PIL import Image, ImageDraw, ImageFont, ImageTk
 from typing import Optional
 
@@ -27,6 +27,7 @@ class WatermarkApp:
     Features:
     - Upload an image.
     - Apply a user-defined text watermark.
+    - Customize text color and opacity.
     - Save the watermarked image.
     """
 
@@ -45,6 +46,13 @@ class WatermarkApp:
         self.text_entry.pack()
         self.text_entry.insert(0, "Enter Watermark Text")
 
+        self.color_btn = tk.Button(root, text="Choose Color", command=self.choose_color)
+        self.color_btn.pack()
+
+        self.opacity_scale = tk.Scale(root, from_=0, to=255, orient="horizontal", label="Opacity")
+        self.opacity_scale.set(255)
+        self.opacity_scale.pack()
+
         self.add_watermark_btn = tk.Button(root, text="Add Watermark", command=self.add_watermark)
         self.add_watermark_btn.pack()
 
@@ -53,6 +61,7 @@ class WatermarkApp:
 
         self.image: Optional[Image.Image] = None
         self.tk_image: Optional[ImageTk.PhotoImage] = None
+        self.text_color = (255, 255, 255)  # Default to white
 
     def upload_image(self) -> None:
         """
@@ -66,10 +75,16 @@ class WatermarkApp:
             self.tk_image = ImageTk.PhotoImage(self.image)
             self.canvas.create_image(250, 200, image=self.tk_image)
 
+    def choose_color(self) -> None:
+        """Opens a color chooser dialog to select the text color."""
+        color_code = colorchooser.askcolor(title="Choose Text Color")[0]
+        if color_code:
+            self.text_color = tuple(int(c) for c in color_code)
+
     def add_watermark(self) -> None:
         """
-        Applies a text watermark to the uploaded image. If no image is uploaded,
-        or no text is provided, an error message is shown.
+        Applies a text watermark to the uploaded image. Allows customization of text color and opacity.
+        If no image is uploaded, or no text is provided, an error message is shown.
         """
         if self.image is None:
             messagebox.showerror("Error", "Please upload an image first")
@@ -95,7 +110,9 @@ class WatermarkApp:
         width, height = watermark_image.size
         position = (width - text_width - 20, height - text_height - 20)
 
-        draw.text(position, watermark_text, fill=(255, 255, 255, 255), font=font)
+        opacity = self.opacity_scale.get()
+        draw.text(position, watermark_text, fill=(self.text_color[0], self.text_color[1], self.text_color[2], opacity),
+                  font=font)
 
         watermarked_image = Image.alpha_composite(watermark_image, txt_layer)
 
