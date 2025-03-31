@@ -31,6 +31,7 @@ class WatermarkApp:
     - Save the watermarked image.
     """
 
+
     def __init__(self, root: tk.Tk) -> None:
         """Initialize the watermarking application UI."""
         self.root = root
@@ -63,6 +64,7 @@ class WatermarkApp:
         self.tk_image: Optional[ImageTk.PhotoImage] = None
         self.text_color = (255, 255, 255)  # Default to white
 
+
     def upload_image(self) -> None:
         """
         Opens a file dialog for the user to select an image file, loads the image,
@@ -75,11 +77,13 @@ class WatermarkApp:
             self.tk_image = ImageTk.PhotoImage(self.image)
             self.canvas.create_image(250, 200, image=self.tk_image)
 
+
     def choose_color(self) -> None:
         """Opens a color chooser dialog to select the text color."""
         color_code = colorchooser.askcolor(title="Choose Text Color")[0]
         if color_code:
             self.text_color = tuple(int(c) for c in color_code)
+
 
     def add_watermark(self) -> None:
         """
@@ -120,6 +124,7 @@ class WatermarkApp:
         self.tk_image = ImageTk.PhotoImage(self.image)
         self.canvas.create_image(250, 200, image=self.tk_image)
 
+
     def save_image(self) -> None:
         """
         Opens a file dialog to save the watermarked image in PNG or JPG format.
@@ -137,7 +142,7 @@ class WatermarkApp:
             self.image.save(file_path)
             messagebox.showinfo("Success", "Image saved successfully")
 
-
+#run programme
 if __name__ == "__main__":
     root = tk.Tk()
     app = WatermarkApp(root)
