@@ -38,27 +38,27 @@ class WatermarkApp:
         self.root.title("Image Watermarking")
 
         self.canvas = tk.Canvas(root, width=500, height=400)
-        self.canvas.pack()
+        self.canvas.pack(pady=10)
 
         self.upload_btn = tk.Button(root, text="Upload Image", command=self.upload_image)
-        self.upload_btn.pack()
+        self.upload_btn.pack(pady=10)
 
         self.text_entry = tk.Entry(root, width=30)
-        self.text_entry.pack()
+        self.text_entry.pack(pady=5)
         self.text_entry.insert(0, "Enter Watermark Text")
 
         self.color_btn = tk.Button(root, text="Choose Color", command=self.choose_color)
-        self.color_btn.pack()
+        self.color_btn.pack(pady=5)
 
         self.opacity_scale = tk.Scale(root, from_=0, to=255, orient="horizontal", label="Opacity")
         self.opacity_scale.set(255)
-        self.opacity_scale.pack()
+        self.opacity_scale.pack(pady=5)
 
         self.add_watermark_btn = tk.Button(root, text="Add Watermark", command=self.add_watermark)
-        self.add_watermark_btn.pack()
+        self.add_watermark_btn.pack(pady=5)
 
         self.save_btn = tk.Button(root, text="Save Image", command=self.save_image)
-        self.save_btn.pack()
+        self.save_btn.pack(pady=5)
 
         self.original_image: Optional[Image.Image] = None
         self.image: Optional[Image.Image] = None
