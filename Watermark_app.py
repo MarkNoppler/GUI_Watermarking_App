@@ -60,9 +60,10 @@ class WatermarkApp:
         self.save_btn = tk.Button(root, text="Save Image", command=self.save_image)
         self.save_btn.pack()
 
+        self.original_image: Optional[Image.Image] = None
         self.image: Optional[Image.Image] = None
         self.tk_image: Optional[ImageTk.PhotoImage] = None
-        self.text_color = (255, 255, 255)  # Default to white
+        self.text_color = (255, 255, 255)
 
 
     def upload_image(self) -> None:
@@ -72,10 +73,19 @@ class WatermarkApp:
         """
         file_path = filedialog.askopenfilename(filetypes=[("Image Files", "*.png;*.jpg;*.jpeg;*.bmp")])
         if file_path:
-            self.image = Image.open(file_path)
-            self.image.thumbnail((400, 400))
-            self.tk_image = ImageTk.PhotoImage(self.image)
-            self.canvas.create_image(250, 200, image=self.tk_image)
+            self.original_image = Image.open(file_path)
+            self.original_image.thumbnail((400, 400))
+            self.image = self.original_image.copy()
+            self.display_image()
+
+
+    def display_image(self) -> None:
+        """
+        Updates the Tkinter canvas to display the current image.
+        Converts the PIL image to a Tkinter-compatible format and places it on the canvas.
+        """
+        self.tk_image = ImageTk.PhotoImage(self.image)
+        self.canvas.create_image(250, 200, image=self.tk_image)
 
 
     def choose_color(self) -> None:
@@ -90,7 +100,7 @@ class WatermarkApp:
         Applies a text watermark to the uploaded image. Allows customization of text color and opacity.
         If no image is uploaded, or no text is provided, an error message is shown.
         """
-        if self.image is None:
+        if self.original_image is None:
             messagebox.showerror("Error", "Please upload an image first")
             return
 
@@ -99,8 +109,8 @@ class WatermarkApp:
             messagebox.showerror("Error", "Please enter watermark text")
             return
 
-        watermark_image = self.image.convert("RGBA")
-        txt_layer = Image.new("RGBA", watermark_image.size, (255, 255, 255, 0))
+        self.image = self.original_image.copy().convert("RGBA")
+        txt_layer = Image.new("RGBA", self.image.size, (255, 255, 255, 0))
         draw = ImageDraw.Draw(txt_layer)
 
         try:
@@ -111,18 +121,15 @@ class WatermarkApp:
         bbox = draw.textbbox((0, 0), watermark_text, font=font)
         text_width, text_height = bbox[2] - bbox[0], bbox[3] - bbox[1]
 
-        width, height = watermark_image.size
+        width, height = self.image.size
         position = (width - text_width - 20, height - text_height - 20)
 
         opacity = self.opacity_scale.get()
         draw.text(position, watermark_text, fill=(self.text_color[0], self.text_color[1], self.text_color[2], opacity),
                   font=font)
 
-        watermarked_image = Image.alpha_composite(watermark_image, txt_layer)
-
-        self.image = watermarked_image.convert("RGB")
-        self.tk_image = ImageTk.PhotoImage(self.image)
-        self.canvas.create_image(250, 200, image=self.tk_image)
+        self.image = Image.alpha_composite(self.image, txt_layer).convert("RGB")
+        self.display_image()
 
 
     def save_image(self) -> None:
